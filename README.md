@@ -1,6 +1,6 @@
 # claude-brain
 
-A Claude Code skill that installs an **LLM Wiki** (Carpati/Obsidian-style knowledge base) in any project. One command and Claude sets up everything: an interconnected markdown wiki with session nodes, a dense index, an append-only log, and a slash command (`/brain`) for ingest, query, and lint operations.
+A Claude Code skill that installs an **LLM Wiki** (Obsidian-style knowledge base) in any project. One command and Claude sets up everything: an interconnected markdown wiki with session nodes, a dense index, an append-only log, and a slash command (`/brain`) for ingest, query, and lint operations.
 
 ## What you get
 
