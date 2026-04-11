@@ -30,9 +30,9 @@ La wiki es mantenida por Claude a través de tres operaciones:
 Antes de instalar, asegurate de tener:
 
 - **[Claude Code](https://claude.ai/code)** — la CLI de Anthropic. Es el entorno donde se ejecutan los skills y slash commands. Sin esto, nada funciona.
-- **Git** — para clonar el repositorio del skill.
 - **[Foam para VSCode](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode)** — extensión opcional pero muy recomendada si querés ver el grafo visual de tu wiki (ver más abajo).
 - **Notion MCP** — solo si vas a usar Notion como fuente de verdad (ver sección de configuración).
+- **Git** — Solo si queres clonar el repositorio del skill.
 
 ## Cómo instalar
 
@@ -151,7 +151,7 @@ Claude va a hacer fetch automático del contenido de Notion cuando lo necesite e
 
 ## El patrón
 
-Este skill implementa el **patrón LLM Wiki / Carpati**: una base de conocimiento persistente y auto-compilada donde el LLM es tanto el escritor como el lector. La clave está en que Claude lee el índice primero en cada operación, haciendo que la recuperación sea O(índice) y no O(todos-los-archivos). Las referencias cruzadas son bidireccionales y se verifican en cada ingest.
+Este skill implementa el **patrón LLM Wiki - Karpathy**: una base de conocimiento persistente y auto-compilada donde el LLM es tanto el escritor como el lector. La clave está en que Claude lee el índice primero en cada operación, haciendo que la recuperación sea O(índice) y no O(todos-los-archivos). Las referencias cruzadas son bidireccionales y se verifican en cada ingest.
 
 La arquitectura de tres capas:
 1. **Fuentes brutas** — páginas de Notion, archivos del repo (inmutables, obtenidos frescos)
