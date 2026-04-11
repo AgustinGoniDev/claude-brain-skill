@@ -1,77 +1,98 @@
 # claude-brain
 
-A Claude Code skill that installs an **LLM Wiki** (Carpati/Obsidian-style knowledge base) in any project. One command and Claude sets up everything: an interconnected markdown wiki with session nodes, a dense index, an append-only log, and a slash command (`/brain`) for ingest, query, and lint operations.
+Un skill de Claude Code que instala una **LLM Wiki** (base de conocimiento estilo Obsidian) en cualquier proyecto. Un solo comando y Claude configura todo: una wiki en markdown interconectada con nodos de sesión, un índice denso, un log append-only, y un slash command (`/brain`) para operaciones de ingest, query y lint.
 
-## What you get
+## Qué obtenés
 
-After running the skill, your project has:
+Después de ejecutar el skill, tu proyecto tendrá:
 
 ```
-brain/                        ← wiki directory (name is configurable)
-├── CLAUDE.md                 ← operational schema (rules for Claude)
-├── index.md                  ← dense node catalog (LLM cursor)
-├── log.md                    ← append-only operations bitácora
-├── sources.md                ← external sources registry
-└── sessions/                 ← one markdown file per session
-.claude/commands/brain.md     ← /brain slash command
-.vscode/settings.json         ← Foam wikilinks configuration
+brain/                        ← directorio de la wiki (el nombre es configurable)
+├── CLAUDE.md                 ← esquema operacional (reglas para Claude)
+├── index.md                  ← catálogo denso de nodos (cursor del LLM)
+├── log.md                    ← bitácora append-only de operaciones
+├── sources.md                ← registro de fuentes externas
+└── sessions/                 ← un archivo markdown por sesión
+.claude/commands/brain.md     ← slash command /brain
+.vscode/settings.json         ← configuración de wikilinks para Foam
 ```
 
-The wiki is maintained by Claude through three operations:
+La wiki es mantenida por Claude a través de tres operaciones:
 
-| Command | What it does |
-|---------|-------------|
-| `/brain ingest` | Creates a session node from the current conversation. Extracts decisions, outputs, cross-refs, and pending items. Updates the index and log automatically. |
-| `/brain query <question>` | Answers using the wiki as source, with `[[wikilink]]` citations. Fetches fresh content from external sources when needed. |
-| `/brain lint` | Health check: broken wikilinks, orphan nodes, stale claims, missing cross-refs, emerging concept candidates. Read-only. |
+| Comando | Qué hace |
+|---------|----------|
+| `/brain ingest` | Crea un nodo de sesión a partir de la conversación actual. Extrae decisiones, outputs, referencias cruzadas e ítems pendientes. Actualiza el índice y el log automáticamente. |
+| `/brain query <pregunta>` | Responde usando la wiki como fuente, con citas `[[wikilink]]`. Obtiene contenido actualizado de fuentes externas cuando es necesario. |
+| `/brain lint` | Chequeo de salud: wikilinks rotos, nodos huérfanos, claims desactualizados, referencias cruzadas faltantes, candidatos a nuevos conceptos. Solo lectura. |
 
-## How to install
+## Requisitos previos
 
-### Option 1 — Direct copy (recommended)
+Antes de instalar, asegurate de tener:
 
-Copy the skill to your project or global Claude Code skills directory:
+- **[Claude Code](https://claude.ai/code)** — la CLI de Anthropic. Es el entorno donde se ejecutan los skills y slash commands. Sin esto, nada funciona.
+- **Git** — para clonar el repositorio del skill.
+- **[Foam para VSCode](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode)** — extensión opcional pero muy recomendada si querés ver el grafo visual de tu wiki (ver más abajo).
+- **Notion MCP** — solo si vas a usar Notion como fuente de verdad (ver sección de configuración).
+
+## Cómo instalar
+
+### Paso 1 — Copiá el skill a tu proyecto
+
+Tenés dos opciones según si querés usarlo solo en un proyecto o en todos:
 
 ```bash
-# For a specific project
+# Para un proyecto específico (ejecutá esto dentro del directorio de tu proyecto)
 git clone https://github.com/AgustinGoniDev/claude-brain .agents/skills/claude-brain
 
-# Or globally (available in all projects)
+# Para uso global (disponible en todos tus proyectos)
 git clone https://github.com/AgustinGoniDev/claude-brain ~/.claude/skills/claude-brain
 ```
 
-Then open Claude Code and run:
+### Paso 2 — Ejecutá el skill desde Claude Code
+
+Abrí Claude Code en tu proyecto y ejecutá:
 
 ```
 /claude-brain
 ```
 
-Claude will ask you a few questions and generate everything.
+Claude te va a hacer las preguntas de configuración (puede hacerlas todas juntas) y va a generar toda la estructura automáticamente.
 
-### Option 2 — Manual copy
+> Si el comando `/claude-brain` no aparece, verificá que el skill esté en la carpeta correcta: `.agents/skills/claude-brain/` (para el proyecto) o `~/.claude/skills/claude-brain/` (global).
 
-1. Download or clone this repo
-2. Copy the contents to `.agents/skills/claude-brain/` inside your project (or `~/.claude/skills/claude-brain/` for global use)
-3. Run `/claude-brain` in Claude Code
+## Preguntas de configuración
 
-## Setup questions
+Al ejecutar `/claude-brain`, Claude te pregunta lo siguiente:
 
-When you run `/claude-brain`, Claude will ask:
+### 1. Nombre del directorio de la wiki
+Cómo llamar a la carpeta principal. Por defecto es `brain`, pero podés usar `cerebro`, `wiki`, `knowledge`, `memoria`, etc.
 
-1. **Wiki directory name** — what to call the folder (default: `brain`, or use `cerebro`, `wiki`, etc.)
-2. **Slash command name** — what to call the command (default: same as directory name)
-3. **Project name** — used in the command description
-4. **Content language** — Spanish, English, or custom (affects section names in nodes)
-5. **Project areas** — your team's areas (e.g. `marketing, ops, dev`). These become the `area` frontmatter enum and index sections.
-6. **Source of truth backend**:
-   - **Notion** — wiki stores short IDs; Claude fetches fresh content via MCP when needed
-   - **Local files** — source of truth lives in the repo; Claude reads files directly
-   - **Other tool** — Claude adapts instructions for your tool (Confluence, Linear, Airtable, etc.)
-   - **None** — standalone wiki, no external source
-7. **Legacy sessions** — whether you have existing session logs to migrate
+### 2. Nombre del slash command
+El comando que vas a usar para operar la wiki. Por defecto es igual al nombre del directorio. Por ejemplo, si elegís `cerebro`, el comando quedaría `/cerebro ingest`.
 
-## How it works
+### 3. Nombre del proyecto
+Se usa en la descripción interna del comando. Puede ser el nombre de tu empresa, equipo o producto.
 
-Each session node is a markdown file with YAML frontmatter:
+### 4. Idioma del contenido
+El idioma en el que Claude va a escribir los nodos. Las opciones son Español, English u otro (en ese caso definís los nombres de las secciones vos). Esto afecta los encabezados internos de cada nodo (Contexto, Decisiones, Pendientes, etc.).
+
+### 5. Áreas del proyecto
+Las categorías de trabajo de tu equipo. Por ejemplo: `marketing, ops, dev, research, product`. Se usan como secciones en el índice y como valores del campo `area` en el frontmatter de cada nodo.
+
+### 6. Backend de fuente de verdad
+De dónde viene el conocimiento del proyecto:
+
+- **Notion** — la wiki guarda punteros a páginas de Notion con IDs cortos. Claude hace fetch del contenido actualizado vía MCP cuando lo necesita. Requiere el MCP de Notion configurado en `.mcp.json`.
+- **Archivos locales** — la fuente de verdad son archivos dentro del mismo repositorio. Claude los lee directamente con Read.
+- **Otra herramienta** — Confluence, Linear, Airtable, etc. Describís cómo funciona y Claude adapta las instrucciones.
+- **Ninguna** — wiki standalone, sin fuente externa. Claude responde solo desde lo que hay en los nodos.
+
+### 7. Sesiones históricas
+Si tenés logs, notas o changelogs de sesiones anteriores para migrar, Claude genera una nota de inmutabilidad en el esquema. Después podés migrar esos archivos manualmente agregándoles el frontmatter YAML correspondiente.
+
+## Cómo funciona
+
+Cada nodo de sesión es un archivo markdown con frontmatter YAML y seis secciones fijas:
 
 ```yaml
 ---
@@ -79,7 +100,7 @@ type: session
 area: marketing
 date: 2026-04-10
 slug: email-infrastructure-setup
-title: "Email capture infrastructure: Brevo + n8n + Nginx"
+title: "Infraestructura de captura de emails: Brevo + n8n + Nginx"
 tags: [email, lead-magnet, brevo, n8n, nginx]
 status: active
 related:
@@ -89,50 +110,54 @@ sources:
   - repo:.claude/plans/email-infra.md
 superseded_by: null
 ---
-```
 
-And a body with six fixed sections:
-
-```markdown
-# Title
-
-## Context
-## Decisions
+## Contexto
+## Decisiones
 ## Output
-## Pending
+## Pendientes
 ## Cross-refs
-- [[2026-04-04-cold-email-sequence]] — same date, complementary piece
-## Sources
+- [[2026-04-04-cold-email-sequence]] — misma fecha, pieza complementaria
+## Fuentes
 - [[sources#email-strategy]] (Notion)
 ```
 
-Internal links use Foam wikilink syntax (`[[slug]]`), which the [Foam VSCode extension](https://foambubble.github.io/foam/) renders as a navigable graph.
+Los links internos usan la sintaxis `[[slug]]` (wikilinks). El índice (`index.md`) es el cursor principal: Claude lo lee primero en cada operación para decidir qué nodos abrir, sin leer toda la wiki de una vez.
 
-## VSCode extension
+## Visualización del grafo con Foam
 
-Install [Foam](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode) to get:
-- Clickable `[[wikilinks]]` in your editor
-- Graph visualization of the knowledge base
-- Backlinks panel
-- Link autocompletion
+Para ver el grafo visual de tu wiki, instalá la extensión **Foam** en Visual Studio Code:
 
-The skill configures `.vscode/settings.json` automatically to exclude legacy session folders from the Foam graph (no duplicate nodes).
+1. Abrí el panel de extensiones (`Ctrl+Shift+X` en Windows/Linux, `Cmd+Shift+X` en Mac)
+2. Buscá **"Foam"** y elegí la extensión de "Foam team"
+3. Instalala y recargá VSCode
+4. Con tu proyecto abierto, usá el comando **"Foam: Show Graph"** desde la paleta de comandos (`Ctrl+Shift+P` / `Cmd+Shift+P`)
 
-## Pattern
+Con Foam vas a tener:
+- `[[wikilinks]]` clickeables en el editor
+- Grafo visual interactivo de todos los nodos y sus conexiones
+- Panel de backlinks (qué nodos apuntan al nodo actual)
+- Autocompletado al escribir `[[`
 
-This skill implements the **LLM Wiki / Carpati pattern**: a persistent, self-compiling knowledge base where the LLM is both the writer and the reader. The key insight is that Claude reads the wiki index first on every operation, making retrieval O(index) not O(all-files). Cross-references are bidirectional and enforced on ingest.
+El skill configura `.vscode/settings.json` automáticamente para que el grafo no incluya carpetas innecesarias como `.claude/` o sesiones legacy.
 
-The three-layer architecture:
-1. **Raw sources** — Notion pages, repo files (immutable, fetched fresh)
-2. **Wiki** — `brain/` — session nodes with frontmatter, dense index, cross-refs
-3. **Schema** — `brain/CLAUDE.md` — the operational manual Claude reads before every operation
+## Configuración de Notion (solo si usás ese backend)
 
-## Requirements
+Si elegiste Notion como fuente de verdad, necesitás:
 
-- [Claude Code](https://claude.ai/code) CLI
-- [Foam VSCode extension](https://foambubble.github.io/foam/) (optional but recommended)
-- If using Notion backend: Notion MCP configured in your `.mcp.json`
+1. Configurar el **MCP de Notion** en el archivo `.mcp.json` de tu proyecto
+2. Completar `brain/sources.md` con los IDs cortos y URLs de tus páginas de Notion
 
-## License
+Claude va a hacer fetch automático del contenido de Notion cuando lo necesite en una query.
+
+## El patrón
+
+Este skill implementa el **patrón LLM Wiki / Carpati**: una base de conocimiento persistente y auto-compilada donde el LLM es tanto el escritor como el lector. La clave está en que Claude lee el índice primero en cada operación, haciendo que la recuperación sea O(índice) y no O(todos-los-archivos). Las referencias cruzadas son bidireccionales y se verifican en cada ingest.
+
+La arquitectura de tres capas:
+1. **Fuentes brutas** — páginas de Notion, archivos del repo (inmutables, obtenidos frescos)
+2. **Wiki** — `brain/` — nodos de sesión con frontmatter, índice denso, referencias cruzadas
+3. **Esquema** — `brain/CLAUDE.md` — el manual operacional que Claude lee antes de cada operación
+
+## Licencia
 
 MIT
